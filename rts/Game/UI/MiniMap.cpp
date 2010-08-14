@@ -405,10 +405,25 @@ void CMiniMap::UpdateGeometry()
 	// keep the same distance to the top
 	ypos -= (lastWindowSizeY - globalRendering->viewSizeY);
 	if (globalRendering->dualScreenMode) {
-		width = globalRendering->viewSizeX;
-		height = globalRendering->viewSizeY;
-		xpos = (globalRendering->viewSizeX - globalRendering->viewPosX);
-		ypos = 0;
+		const float mapAspectRatio = float(gs->mapx) / float(gs->mapy);
+		const float viewportAspectRatio = float(globalRendering->aspectRatio);
+
+		if (viewportAspectRatio > mapAspectRatio)
+		{
+			height = globalRendering->viewSizeY;
+			width = mapAspectRatio * height;
+			xpos = int((float(globalRendering->viewSizeX) - float(width)) / 2.0f);
+			ypos = 0;
+		}
+		else
+		{
+			width = globalRendering->viewSizeX;
+			height = width / mapAspectRatio;
+			xpos = 0;
+			ypos = int((float(globalRendering->viewSizeY) - float(height)) / 2.0f);
+		}
+
+		xpos += (globalRendering->viewSizeX - globalRendering->viewPosX);
 	}
 	else if (maximized) {
 		SetMaximizedGeometry();
@@ -1020,7 +1035,6 @@ void CMiniMap::DrawForReal(bool use_geo)
 		// switch to normalized minimap coords
 		if (globalRendering->dualScreenMode) {
 			glViewport(xpos, ypos, width, height);
-			glScalef(width * globalRendering->pixelX, height * globalRendering->pixelY, 1.0f);
 		} else {
 			glTranslatef(xpos * globalRendering->pixelX, ypos * globalRendering->pixelY, 0.0f);
 			glScalef(width * globalRendering->pixelX, height * globalRendering->pixelY, 1.0f);
