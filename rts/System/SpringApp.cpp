@@ -645,7 +645,7 @@ void SpringApp::SaveWindowPosition()
 
 void SpringApp::SetupViewportGeometry()
 {
-	if (!GetDisplayGeometry()) {
+	if (globalRendering->fullScreen || !GetDisplayGeometry()) {
 		globalRendering->screenSizeX = screenWidth;
 		globalRendering->screenSizeY = screenHeight;
 		globalRendering->winSizeX = screenWidth;
